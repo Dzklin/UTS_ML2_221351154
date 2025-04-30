@@ -49,4 +49,4 @@ if st.button("Prediksi Harga"):
     interpreter.invoke()
     prediction = interpreter.get_tensor(output_details[0]['index'])
 
-    st.success(f"Prediksi harga mobil: ${prediction[0][0]:,.2f}")
+    st.success(f" 🚗 Prediksi harga mobil: ${prediction[0][0]:,.2f}")
