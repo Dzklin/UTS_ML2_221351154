@@ -3,18 +3,18 @@ import numpy as np
 import joblib
 import tensorflow as tf
 
-# --- Load assets ---
-interpreter = tf.lite.Interpreter(model_path="car_price_model.tflite")
-interpreter.allocate_tensors()
-
+# Load scaler dan label encoder
 scaler = joblib.load("scaler.pkl")
 le_dict = joblib.load("label_encoders.pkl")
 
-# Get input & output details
+# Load model tflite
+interpreter = tf.lite.Interpreter(model_path="modelcar_price_model.tflite")
+interpreter.allocate_tensors()
+
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-# --- Streamlit UI ---
+# Judul Aplikasi
 st.title("Prediksi Harga Mobil Ford")
 st.write("Masukkan spesifikasi mobil:")
 
