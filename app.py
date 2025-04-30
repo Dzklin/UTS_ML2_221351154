@@ -4,7 +4,7 @@ import joblib
 import tensorflow as tf
 
 # Load model dan pipeline
-model = tf.keras.models.load_model('model.h5')
+model = tf.keras.models.load_model('modelcar_price_model.tflite')
 scaler = joblib.load('scaler.pkl')
 le_dict = joblib.load('label_encoders.pkl')
 
