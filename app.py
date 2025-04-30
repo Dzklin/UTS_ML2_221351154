@@ -3,39 +3,50 @@ import numpy as np
 import joblib
 import tensorflow as tf
 
-# Load model dan pipeline
-model = tf.keras.models.load_model('modelcar_price_model.tflite')
-scaler = joblib.load('scaler.pkl')
-le_dict = joblib.load('label_encoders.pkl')
+# --- Load assets ---
+interpreter = tf.lite.Interpreter(model_path="car_price_model.tflite")
+interpreter.allocate_tensors()
 
-# UI
-st.title("Prediksi Harga Mobil Ford Bekas")
+scaler = joblib.load("scaler.pkl")
+le_dict = joblib.load("label_encoders.pkl")
 
-# Input dari user
-year = st.number_input("Tahun Mobil", min_value=1990, max_value=2025, value=2015)
-mileage = st.number_input("Mileage (dalam mil)", min_value=0, value=50000)
-tax = st.number_input("Tax ($)", min_value=0, value=150)
-mpg = st.number_input("MPG", min_value=0.0, value=40.0)
-engineSize = st.number_input("Engine Size (L)", min_value=0.0, value=1.6)
+# Get input & output details
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
-model_input = st.selectbox("Model Mobil", le_dict['model'].classes_)
-transmission_input = st.selectbox("Transmisi", le_dict['transmission'].classes_)
-fuel_input = st.selectbox("Jenis Bahan Bakar", le_dict['fuelType'].classes_)
+# --- Streamlit UI ---
+st.title("Prediksi Harga Mobil Ford")
+st.write("Masukkan spesifikasi mobil:")
+
+# Ambil opsi dari encoder
+model_options = list(le_dict["model"].classes_)
+transmission_options = list(le_dict["transmission"].classes_)
+fuel_options = list(le_dict["fuelType"].classes_)
+
+year = st.number_input("Tahun", min_value=1990, max_value=2025, value=2017)
+mileage = st.number_input("Jarak tempuh (dalam mil)", min_value=0, value=40000)
+tax = st.number_input("Pajak (£)", min_value=0, value=150)
+mpg = st.number_input("MPG", min_value=0.0, value=55.4)
+engineSize = st.number_input("Ukuran Mesin", min_value=0.0, value=1.6)
+model_input = st.selectbox("Model", model_options)
+transmission_input = st.selectbox("Transmisi", transmission_options)
+fuel_input = st.selectbox("Tipe Bahan Bakar", fuel_options)
 
 if st.button("Prediksi Harga"):
-    # Encode input
+    # Encode
     model_encoded = le_dict['model'].transform([model_input])[0]
     transmission_encoded = le_dict['transmission'].transform([transmission_input])[0]
     fuel_encoded = le_dict['fuelType'].transform([fuel_input])[0]
 
-    # Gabungkan semua input
-    X_input = np.array([[year, mileage, tax, mpg, engineSize,
-                         model_encoded, transmission_encoded, fuel_encoded]])
+    data = np.array([[year, mileage, tax, mpg, engineSize,
+                      model_encoded, transmission_encoded, fuel_encoded]])
 
-    # Normalisasi
-    X_scaled = scaler.transform(X_input)
+    # Scale
+    data_scaled = scaler.transform(data)
 
-    # Prediksi
-    prediction = model.predict(X_scaled)[0][0]
+    # Predict with TFLite
+    interpreter.set_tensor(input_details[0]['index'], data_scaled.astype(np.float32))
+    interpreter.invoke()
+    prediction = interpreter.get_tensor(output_details[0]['index'])
 
-    st.success(f"Prediksi Harga Mobil: ${prediction:,.2f}")
+    st.success(f"Prediksi harga mobil: £{prediction[0][0]:,.2f}")
