@@ -15,7 +15,7 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 # Judul Aplikasi
-st.title("🚘 Prediksi Harga Mobil Ford")
+st.title(" 🚘 Prediksi Harga Mobil Ford")
 st.write("Masukkan spesifikasi mobil:")
 
 # Ambil opsi dari encoder
