@@ -25,7 +25,7 @@ fuel_options = list(le_dict["fuelType"].classes_)
 
 year = st.number_input("Tahun", min_value=1990, max_value=2025, value=2017)
 mileage = st.number_input("Jarak tempuh (dalam mil)", min_value=0, value=40000)
-tax = st.number_input("Pajak (£)", min_value=0, value=150)
+tax = st.number_input("Pajak ($)", min_value=0, value=150)
 mpg = st.number_input("MPG", min_value=0.0, value=55.4)
 engineSize = st.number_input("Ukuran Mesin", min_value=0.0, value=1.6)
 model_input = st.selectbox("Model", model_options)
@@ -49,4 +49,4 @@ if st.button("Prediksi Harga"):
     interpreter.invoke()
     prediction = interpreter.get_tensor(output_details[0]['index'])
 
-    st.success(f"Prediksi harga mobil: £{prediction[0][0]:,.2f}")
+    st.success(f"Prediksi harga mobil: ${prediction[0][0]:,.2f}")
